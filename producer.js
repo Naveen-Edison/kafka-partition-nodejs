@@ -5,17 +5,18 @@ const kafka = new Kafka({
     brokers: ['localhost:9092']
 });
 
-const topicName = 'orderCreated';
+const topicName = 'orderbook';
 
-const msg = JSON.stringify({customerId: 1, orderId: 1});
 const processProducer  = async () => {
     const producer = kafka.producer();
     await producer.connect();
-    for (let i = 0; i < 1000000; i++) {
+    // const msg = JSON.stringify({customerId: 1, orderId: 1});
+    let i=0;
+    for (let i = 0; i < 10; i++) {
         await producer.send({
             topic: topicName,
             messages: [
-                { value: msg },
+                { value: JSON.stringify({customerId: 1, orderId: i}) },
             ],
         });
     }

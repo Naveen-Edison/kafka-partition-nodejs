@@ -5,23 +5,23 @@ const kafka = new Kafka({
     brokers: ['localhost:9092']
 });
 
-const topicName = 'orderCreated';
+const topicName = 'orderbook';
 const consumerNumber = process.argv[2] || '1';
 
 const processConsumer  = async () => {
     const ordersConsumer = kafka.consumer({groupId: 'orders'});
-    const paymentsConsumer = kafka.consumer({groupId: 'payments'});
-    const notificationsConsumer = kafka.consumer({groupId: 'notifications'});
+    const ordersTwoConsumer = kafka.consumer({groupId: 'orders'});
+    const ordersThreeConsumer = kafka.consumer({groupId: 'orders'});
     await Promise.all([
         ordersConsumer.connect(),
-        paymentsConsumer.connect(),
-        notificationsConsumer.connect(),
+        ordersTwoConsumer.connect(),
+        ordersThreeConsumer.connect(),
     ]);
 
     await Promise.all([
         await ordersConsumer.subscribe({ topic: topicName }),
-        await paymentsConsumer.subscribe({ topic: topicName }),
-        await notificationsConsumer.subscribe({ topic: topicName }),
+        await ordersTwoConsumer.subscribe({ topic: topicName }),
+        await ordersThreeConsumer.subscribe({ topic: topicName }),
     ]);
 
     let orderCounter = 1;
@@ -33,15 +33,15 @@ const processConsumer  = async () => {
             orderCounter++;
         },
     });
-    await paymentsConsumer.run({
+    await ordersTwoConsumer.run({
         eachMessage: async ({ topic, partition, message }) => {
-            logMessage(paymentCounter, `paymentsConsumer#${consumerNumber}`, topic, partition, message);
+            logMessage(paymentCounter, `ordersTwoConsumer#${consumerNumber}`, topic, partition, message);
             paymentCounter++;
         },
     });
-    await notificationsConsumer.run({
+    await ordersThreeConsumer.run({
         eachMessage: async ({ topic, partition, message }) => {
-            logMessage(notificationCounter, `notificationsConsumer#${consumerNumber}`, topic, partition, message);
+            logMessage(notificationCounter, `ordersThreeConsumer#${consumerNumber}`, topic, partition, message);
             notificationCounter++;
         },
     });
